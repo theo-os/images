@@ -1,0 +1,14 @@
+FROM docker.io/alpine:latest
+
+RUN apk add \
+    --no-cache \
+    curl musl-dev gcc g++ gdb
+
+COPY ./system /theos/system
+RUN g++ -static -Wextra -Wall \
+    /theos/system/init.cpp \
+    /theos/system/core/*.cpp \
+    -I /theos/system/core \
+    -o /theos/system/init
+
+RUN rm /sbin/apk

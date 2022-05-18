@@ -1,0 +1,6 @@
+#!/bin/sh
+
+mount -n -o remount,rw /
+mount -t proc none /proc
+
+exec /bin/sh

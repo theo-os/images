@@ -1,0 +1,29 @@
+FROM docker.io/debian:11 as kernel-build
+ARG ARCH=x86_64
+ENV ARCH=${ARCH}
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt update -y && \
+    apt install -y \
+    build-essential bc git \
+    libncurses-dev gawk flex bison \
+    openssl libssl-dev dkms libelf-dev \
+    libudev-dev libpci-dev libiberty-dev \
+    autoconf
+
+COPY ./config/kernel_config.txt /kernel_config.txt
+
+WORKDIR /linux
+RUN git clone --depth 1 https://github.com/zen-kernel/zen-kernel .
+RUN make defconfig && \
+    ./scripts/kconfig/merge_config.sh .config /kernel_config.txt
+
+# build kernel
+RUN make -j "$(nproc)"
+
+FROM scratch
+ENTRYPOINT []
+CMD []
+WORKDIR /
+COPY --from=kernel-build /linux/arch/x86/boot/bzImage /kernel/bzImage
+COPY --from=kernel-build /kernel_config.txt /kerne/config.txt

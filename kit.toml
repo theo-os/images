@@ -1,0 +1,16 @@
+images = [
+    "theos/kernel:latest",
+    #"localhost/theos/vsh:latest",
+    #"localhost/theos/core:latest",
+    "theos/base:latest",
+    #"localhost/timdows/runtime:latest",
+    #"localhost/theos/coreutils:latest",
+]
+kernel = "boot:///kernel/bzImage"
+cmdline = "RUST_BACKTRACE=1 RUST_LOG=debug quiet console=ttyS0 root=/dev/sda rw init=/theos/system/init"
+boot_protocol = "linux"
+
+[[mappings]]
+source = "./presets/base/boot"
+target = ""
+
