@@ -1,4 +1,0 @@
-<services>
-	<service name="boot" command="/bin/sh">
-	</service>
-</services>

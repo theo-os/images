@@ -1,14 +1,22 @@
-FROM docker.io/alpine:latest
+FROM docker.io/alpine:latest as build
 
 RUN apk add \
     --no-cache \
-    curl musl-dev gcc g++ gdb
+    curl libupnp-dev
+
+RUN curl -LO https://ziglang.org/download/0.9.1/zig-linux-x86_64-0.9.1.tar.xz && \
+    tar -xf zig-linux-x86_64-0.9.1.tar.xz && \ 
+    mv zig-linux-x86_64-0.9.1 /zig-linux
+
+ENV PATH="$PATH:/zig-linux"
 
 COPY ./system /theos/system
-RUN g++ -static -Wextra -Wall \
-    /theos/system/init.cpp \
-    /theos/system/core/*.cpp \
-    -I /theos/system/core \
-    -o /theos/system/init
+RUN cd /theos/system && \
+    zig build
 
-RUN rm /sbin/apk
+FROM docker.io/busybox:latest
+
+COPY ./system/boot.json /
+COPY --from=build /theos/system/zig-out/bin/theos-init /theos/system/init
+COPY --from=build /zig-linux/* /usr/src/zig/
+
